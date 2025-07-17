@@ -12,4 +12,18 @@ router
     productsController.addProducts
   );
 
+router
+  .route("/:id")
+  .get(authController.protect, productsController.getProduct)
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin"),
+    productsController.updateProduct
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo("admin"),
+    productsController.deleteProduct
+  );
+
 module.exports = router;

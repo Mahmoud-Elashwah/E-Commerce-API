@@ -21,7 +21,7 @@ exports.getAllProducts = async (req, res) => {
     }
 
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     query = query.skip(skip).limit(limit);
 
@@ -50,6 +50,73 @@ exports.addProducts = async (req, res) => {
       status: "success",
       data: {
         product: newProducts,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
+  }
+};
+
+exports.getProduct = async (req, res) => {
+  try {
+    const product = await Products.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({
+        status: "fail",
+        message: "This Product not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        product,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
+  }
+};
+
+exports.deleteProduct = async (req, res) => {
+  try {
+    const deletedProduct = await Products.findByIdAndDelete(req.params.id);
+    if (!deletedProduct) {
+      return res.status(404).json({
+        status: "fail",
+        message: "This Product not found",
+      });
+    }
+    res.status(204).json();
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: err.message,
+    });
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const product = await Products.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!product) {
+      return res.status(404).json({
+        status: "fail",
+        message: "This Product not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        product,
       },
     });
   } catch (err) {
