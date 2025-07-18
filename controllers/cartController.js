@@ -102,10 +102,18 @@ exports.getCart = async (req, res) => {
         message: "Cart not found",
       });
     }
+
+    let totalPrice = 0;
+    for (let i = 0; i < cart.products.length; i++) {
+      totalPrice +=
+        cart.products[i].product.finalPrice * cart.products[i].quantity;
+    }
     res.status(200).json({
       status: "success",
       data: {
         cart,
+        totalPrice,
+        itemsCount: cart.products.length,
       },
     });
   } catch (err) {
