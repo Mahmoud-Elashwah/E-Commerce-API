@@ -1,3 +1,4 @@
+const { findById } = require("../modules/cartModule");
 const Products = require("./../modules/productsModule");
 
 exports.getAllProducts = async (req, res) => {
@@ -103,16 +104,29 @@ exports.deleteProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Products.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!product) {
+    const theProduct = await Products.findById(req.params.id);
+    if (!theProduct) {
       return res.status(404).json({
         status: "fail",
         message: "This Product not found",
       });
     }
+    const price =
+      req.body.price !== undefined ? req.body.price : theProduct.price;
+    const discount =
+      req.body.discount !== undefined ? req.body.discount : theProduct.discount;
+
+    const finalPrice = price - (price * discount) / 100;
+
+    const product = await Products.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, finalPrice },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
     res.status(200).json({
       status: "success",
       data: {
