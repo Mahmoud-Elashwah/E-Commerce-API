@@ -1,7 +1,7 @@
-const Cart = require("./../modules/cartModule");
+const Cart = require("./../models/cartModel");
 const paymob = require("./../utils/paymob");
-const User = require("./../modules/userModule");
-const Order = require("./../modules/orderModule");
+const User = require("./../models/userModel");
+const Order = require("./../models/orderModel");
 
 exports.checkout = async (req, res) => {
   try {

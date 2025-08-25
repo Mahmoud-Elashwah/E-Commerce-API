@@ -1,5 +1,4 @@
-const { findById } = require("../modules/cartModule");
-const Products = require("./../modules/productsModule");
+const Products = require("./../models/productsModel");
 
 exports.getAllProducts = async (req, res) => {
   try {
