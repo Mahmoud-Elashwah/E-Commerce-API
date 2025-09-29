@@ -1,4 +1,6 @@
 const Products = require("./../models/productsModel");
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/AppError");
 
 exports.getAllProducts = async (req, res) => {
   try {
