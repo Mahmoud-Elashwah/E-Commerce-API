@@ -53,7 +53,6 @@ exports.checkout = catchAsync(async (req, res, next) => {
     status: "pending",
     paymobOrderId: payombOrder.id,
   });
-  console.log("Paymob Order ID Created:", payombOrder.id);
 
   const iframeId = process.env.PAYMOB_IFRAME_ID;
   const paymentUrl = `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${paymentKey}`;
@@ -78,7 +77,6 @@ exports.handleWebhook = catchAsync(async (req, res, next) => {
   if (!paymobOrderId) {
     return next(new AppError("Missing order id", 400));
   }
-  console.log("Received Paymob Order ID:", req.body.obj.order.id);
   const order = await Order.findOne({ paymobOrderId });
   if (!order) {
     return next(new AppError("Order not found", 400));
