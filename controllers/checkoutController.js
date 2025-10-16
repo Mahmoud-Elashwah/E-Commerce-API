@@ -4,6 +4,7 @@ const User = require("./../models/userModel");
 const Order = require("./../models/orderModel");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.checkout = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
@@ -87,5 +88,38 @@ exports.handleWebhook = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Order status update",
+  });
+});
+
+exports.checkoutStripe = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const cart = await Cart.findOne({ user: userId }).populate(
+    "products.product"
+  );
+  if (!cart || cart.products.length === 0) {
+    return next(new AppError("Cart is empty", 400));
+  }
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    mode: "payment",
+    success_url: `${req.protocol}://api/products/`,
+    cancel_url: `${req.protocol}://${req.get("host")}/cancel`,
+    customer_email: req.user.email,
+    client_reference_id: cart._id.toString(),
+    line_items: cart.products.map((item) => ({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: item.product.name,
+        },
+        unit_amount: Math.round(item.product.finalPrice * 100),
+      },
+      quantity: item.quantity,
+    })),
+  });
+
+  res.status(200).json({
+    status: "success",
+    session,
   });
 });
